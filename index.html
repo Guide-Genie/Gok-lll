@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>채굴 졸업 계산기</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-zinc-900 text-zinc-100 font-[\'Noto Sans KR\'] min-h-screen py-10 px-4">
+  <div class="max-w-4xl mx-auto space-y-8">
+    <h1 class="text-3xl font-bold text-yellow-400">⛏️ 채굴 졸업 계산기</h1>
+
+    <div class="bg-zinc-800 p-6 rounded-2xl shadow-md space-y-4">
+      <div class="flex items-center gap-4">
+        <label class="font-semibold text-lg">🎯 목표량:</label>
+        <input id="target" type="number" value="2685586" class="bg-zinc-700 text-white px-4 py-2 rounded-xl w-60">
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div class="flex items-center gap-4">
+          <label class="font-semibold">📦 누적 채굴량:</label>
+          <input id="countInput" type="number" placeholder="예: 1985526" class="bg-zinc-700 text-white px-4 py-2 rounded-xl w-60" onkeydown="if(event.key==='Enter') addEntry()">
+        </div>
+      </div>
+
+      <div class="flex gap-3 pt-2">
+        <button onclick="addEntry()" class="bg-yellow-400 hover:bg-yellow-300 text-black font-semibold px-4 py-2 rounded-xl">현재 시간으로 추가</button>
+        <button onclick="resetData()" class="bg-red-500 hover:bg-red-400 text-white font-semibold px-4 py-2 rounded-xl">초기화</button>
+      </div>
+    </div>
+
+    <div class="overflow-x-auto">
+      <table class="min-w-full text-sm text-center border-collapse">
+        <thead class="bg-zinc-700">
+          <tr>
+            <th class="p-2">시각</th>
+            <th class="p-2">누적 수량</th>
+            <th class="p-2">증가량</th>
+            <th class="p-2">경과시간 (초)</th>
+            <th class="p-2">초당 속도</th>
+            <th class="p-2">분당 속도</th>
+            <th class="p-2">삭제</th>
+          </tr>
+        </thead>
+        <tbody id="dataBody"></tbody>
+      </table>
+    </div>
+
+    <div id="result" class="text-lg space-y-2"></div>
+  </div>
+
+  <script>
+    let data = [];
+
+    function saveData() {
+      localStorage.setItem('miningData', JSON.stringify(data));
+    }
+
+    function loadData() {
+      const saved = localStorage.getItem('miningData');
+      if (saved) data = JSON.parse(saved);
+    }
+
+    function addEntry() {
+      const now = new Date();
+      const hh = String(now.getHours()).padStart(2, '0');
+      const mm = String(now.getMinutes()).padStart(2, '0');
+      const ss = String(now.getSeconds()).padStart(2, '0');
+      const time = `${hh}:${mm}:${ss}`;
+      const timestamp = now.getTime();
+
+      const count = parseInt(document.getElementById("countInput").value);
+      const target = parseInt(document.getElementById("target").value);
+      if (isNaN(count)) return alert("채굴량을 입력하세요.");
+
+      data.push({ time, timestamp, count });
+      data.sort((a, b) => a.timestamp - b.timestamp);
+
+      saveData();
+      updateTable(target);
+      document.getElementById("countInput").value = "";
+    }
+
+    function deleteEntry(index) {
+      if (confirm("이 항목을 삭제할까요?")) {
+        data.splice(index, 1);
+        saveData();
+        updateTable(parseInt(document.getElementById("target").value));
+      }
+    }
+
+    function formatTime(date) {
+      return `${String(date.getHours()).padStart(2,'0')}:${String(date.getMinutes()).padStart(2,'0')}:${String(date.getSeconds()).padStart(2,'0')}`;
+    }
+
+    function updateTable(target) {
+      const body = document.getElementById("dataBody");
+      body.innerHTML = "";
+      let resultText = "";
+      let totalDiff = 0, totalTime = 0;
+
+      for (let i = 0; i < data.length; i++) {
+        const prev = data[i - 1];
+        const diff = prev ? data[i].count - prev.count : "-";
+        const timeDiffSec = prev ? (data[i].timestamp - prev.timestamp) / 1000 : "-";
+        const ratePerSec = (prev && timeDiffSec > 0) ? (diff / timeDiffSec).toFixed(2) : "-";
+        const ratePerMin = (ratePerSec !== "-" ? (ratePerSec * 60).toFixed(2) : "-");
+
+        if (typeof diff === "number" && typeof timeDiffSec === "number") {
+          totalDiff += diff;
+          totalTime += timeDiffSec;
+        }
+
+        const row = document.createElement("tr");
+        row.className = "border-b border-zinc-700 hover:bg-zinc-800";
+        row.innerHTML = `
+          <td class="py-2">${data[i].time}</td>
+          <td>${data[i].count.toLocaleString()}</td>
+          <td>${typeof diff === "number" ? diff.toLocaleString() : "-"}</td>
+          <td>${typeof timeDiffSec === "number" ? timeDiffSec.toFixed(1) : "-"}</td>
+          <td>${ratePerSec !== "-" ? ratePerSec + "개/초" : "-"}</td>
+          <td>${ratePerMin !== "-" ? ratePerMin + "개/분" : "-"}</td>
+          <td><button onclick="deleteEntry(${i})" class="text-red-400 hover:underline">삭제</button></td>
+        `;
+        body.appendChild(row);
+      }
+
+      if (totalTime > 0) {
+        const avgSpeedPerSec = totalDiff / totalTime;
+        const latest = data[data.length - 1];
+        const remain = target - latest.count;
+        const timeLeftSec = remain / avgSpeedPerSec;
+        const hours = Math.floor(timeLeftSec / 3600);
+        const minutes = Math.floor((timeLeftSec % 3600) / 60);
+        const seconds = Math.floor(timeLeftSec % 60);
+
+        const finishTime = new Date(Date.now() + timeLeftSec * 1000);
+        const finishStr = formatTime(finishTime);
+
+        resultText = `
+          <div class="p-4 bg-zinc-800 rounded-xl shadow text-yellow-300">
+            <div><strong>남은 수량:</strong> ${remain.toLocaleString()}개</div>
+            <div><strong>평균 속도:</strong> ${avgSpeedPerSec.toFixed(2)}개/초 (${(avgSpeedPerSec * 60).toFixed(2)}개/분)</div>
+            <div><strong>예상 남은 시간:</strong> 약 ${hours}시간 ${minutes}분 ${seconds}초 (⏰ ${finishStr} 도달)</div>
+          </div>
+        `;
+      }
+
+      document.getElementById("result").innerHTML = resultText;
+    }
+
+    function resetData() {
+      if (confirm("모든 데이터를 초기화할까요?")) {
+        data = [];
+        localStorage.removeItem('miningData');
+        updateTable(parseInt(document.getElementById("target").value));
+      }
+    }
+
+    // 초기 실행 시 로드
+    window.onload = () => {
+      loadData();
+      updateTable(parseInt(document.getElementById("target").value));
+    };
+  </script>
+</body>
+</html>
