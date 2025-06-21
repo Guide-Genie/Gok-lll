@@ -2,23 +2,39 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
-  <title>채굴 졸업 계산기</title>
+  <title>채굴 시간 도우미 _ by Today</title>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .icon {
+      width: 24px;
+      height: 24px;
+      object-fit: contain;
+      display: inline-block;
+      vertical-align: middle;
+      margin-right: 8px;
+    }
+  </style>
 </head>
 <body class="bg-zinc-900 text-zinc-100 font-[\'Noto Sans KR\'] min-h-screen py-10 px-4">
   <div class="max-w-4xl mx-auto space-y-8">
-    <h1 class="text-3xl font-bold text-yellow-400">⛏️ 채굴 졸업 계산기</h1>
+    <h1 class="text-3xl font-bold text-yellow-400">
+      <img src="images/pickaxe.png" class="icon" alt="곡괭이 아이콘">채굴 시간 도우미 _ by Today
+    </h1>
 
     <div class="bg-zinc-800 p-6 rounded-2xl shadow-md space-y-4">
       <div class="flex items-center gap-4">
-        <label class="font-semibold text-lg">🎯 목표량:</label>
+        <label class="font-semibold text-lg">
+          <img src="images/target.png" class="icon" alt="목표량 아이콘">목표량:
+        </label>
         <input id="target" type="number" value="2685586" class="bg-zinc-700 text-white px-4 py-2 rounded-xl w-60">
       </div>
 
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div class="flex items-center gap-4">
-          <label class="font-semibold">📦 누적 채굴량:</label>
+          <label class="font-semibold">
+            <img src="images/crate.png" class="icon" alt="채굴량 아이콘">누적 채굴량:
+          </label>
           <input id="countInput" type="number" placeholder="예: 1985526" class="bg-zinc-700 text-white px-4 py-2 rounded-xl w-60" onkeydown="if(event.key==='Enter') addEntry()">
         </div>
       </div>
@@ -157,7 +173,6 @@
       }
     }
 
-    // 초기 실행 시 로드
     window.onload = () => {
       loadData();
       updateTable(parseInt(document.getElementById("target").value));
