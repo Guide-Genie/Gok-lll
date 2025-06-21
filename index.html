@@ -5,39 +5,29 @@
   <title>채굴 시간 도우미 _ by Today</title>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
-  <style>
-    .icon {
-      width: 24px;
-      height: 24px;
-      object-fit: contain;
-      display: inline-block;
-      vertical-align: middle;
-      margin-right: 8px;
-    }
-  </style>
 </head>
 <body class="bg-zinc-900 text-zinc-100 font-['Noto Sans KR'] min-h-screen py-10 px-4">
   <div class="max-w-4xl mx-auto space-y-8">
 
     <!-- 타이틀 -->
     <h1 class="text-3xl font-bold text-yellow-400 flex items-center gap-3">
-      <img src="images/pickaxe_icon.png" class="w-10 h-10 object-contain block" alt="곡괭이 아이콘">
+      <img src="images/pickaxe.png" class="w-10 h-10 object-contain block" alt="곡괭이 아이콘">
       채굴 시간 도우미 <span class="font-normal text-white text-xl">_by Today</span>
     </h1>
 
-    <!-- 입력 영역 -->
+    <!-- 입력 카드 -->
     <div class="bg-zinc-800 p-6 rounded-2xl shadow-md space-y-4">
       <div class="flex items-center gap-4">
-        <label class="font-semibold text-lg flex items-center">
-          <img src="images/target_icon.png" class="icon" alt="목표량 아이콘"> 목표량:
+        <label class="font-semibold text-lg flex items-center gap-2">
+          <img src="images/target.png" class="w-6 h-6 object-contain" alt="목표량 아이콘">목표량:
         </label>
         <input id="target" type="number" value="2685586" class="bg-zinc-700 text-white px-4 py-2 rounded-xl w-60">
       </div>
 
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div class="flex items-center gap-4">
-          <label class="font-semibold flex items-center">
-            <img src="images/crate_icon.png" class="icon" alt="채굴량 아이콘"> 누적 채굴량:
+          <label class="font-semibold flex items-center gap-2">
+            <img src="images/crate.png" class="w-6 h-6 object-contain" alt="채굴량 아이콘">누적 채굴량:
           </label>
           <input id="countInput" type="number" placeholder="예: 1985526" class="bg-zinc-700 text-white px-4 py-2 rounded-xl w-60" onkeydown="if(event.key==='Enter') addEntry()">
         </div>
@@ -49,7 +39,7 @@
       </div>
     </div>
 
-    <!-- 데이터 테이블 -->
+    <!-- 테이블 -->
     <div class="overflow-x-auto">
       <table class="min-w-full text-sm text-center border-collapse">
         <thead class="bg-zinc-700">
@@ -67,7 +57,6 @@
       </table>
     </div>
 
-    <!-- 결과 영역 -->
     <div id="result" class="text-lg space-y-2"></div>
   </div>
 
